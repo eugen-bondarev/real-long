@@ -25,9 +25,11 @@ public:
 
     Number multiply_by_digit(const digit_t p_digit) const;
 
+    Number pow(const digit_t p_digit) const;
     Number operator+(const Number& p_other) const;
     Number operator-(const Number& p_other) const;
     Number operator*(const Number& p_other) const;
+    Number operator/(const Number& p_other) const;
 
     bool in_bounds(const size_t p_i) const;
 
@@ -38,8 +40,16 @@ public:
     digit_t& get_last();    
     digit_t get_first() const;
     digit_t get_last() const;
-
     digit_t get_or(const size_t p_i, const digit_t p_or) const;
+
+    bool operator<(const Number& p_other) const;
+    bool operator>(const Number& p_other) const;
+    bool operator==(const Number& p_other) const;
+    bool operator!=(const Number& p_other) const;
+    bool operator>=(const Number& p_other) const;
+
+    bool is_even() const;
+    bool is_odd() const;
 
     size_t get_amount_of_digits() const;
 

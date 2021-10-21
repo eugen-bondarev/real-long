@@ -70,6 +70,18 @@ digit_t Number::get_or(const size_t p_i, const digit_t p_or) const
     return in_bounds(p_i) ? operator[](p_i) : p_or;
 }
 
+Number Number::pow(const digit_t p_digit) const
+{
+    Number number = (*this);
+
+    for (size_t i = 0; i < p_digit - 1; i++)
+    {
+        number = number * (*this);
+    }
+
+    return number;
+}
+
 Number Number::operator+(const Number& p_other) const
 {
     const Number& a = (*this);
@@ -117,10 +129,10 @@ Number Number::operator-(const Number& p_other) const
         const digit_t a_digit{borrowed_from != i ? a.get_or(i, 0) : static_cast<digit_t>(a.get_or(i, 0) - 1)};
         const digit_t b_digit{b.get_or(i, 0)};
         const bool a_is_less{a_digit < b_digit};
-
         if (a_is_less) { borrowed_from = i + 1; }
-        digit_t result_digit{static_cast<digit_t>(a_digit - b_digit + (a_is_less * 10))};
+        const digit_t result_digit{static_cast<digit_t>(a_digit - b_digit + (a_is_less * 10))};
         
+        // Getting rid of the trailing 0.
         if (!(c.data.size() && i == max_digits - 1 && result_digit == 0))
         {
             c.data.push_back(result_digit);
@@ -149,7 +161,7 @@ Number Number::operator*(const Number& p_other) const
     const Number& a = get_amount_of_digits() >= p_other.get_amount_of_digits() ? (*this) : p_other;
     const Number& b = get_amount_of_digits() >= p_other.get_amount_of_digits() ? p_other : (*this);
     const size_t  max_digits{std::max(a.get_amount_of_digits(), b.get_amount_of_digits())};
-    Number c;
+    Number c; 
     c.data.reserve(max_digits);
 
     std::vector<Number> to_add(b.get_amount_of_digits());
@@ -171,6 +183,37 @@ Number Number::operator*(const Number& p_other) const
     return c;
 }
 
+Number Number::operator/(const Number& p_other) const
+{
+    // Number copy = (*this);
+    // Number denominator = Number("0");
+    Number denominator;
+    denominator.data.reserve(get_amount_of_digits());
+
+    if (get_last() >= 2.0f)
+        denominator.data.push_back(static_cast<digit_t>(floorf(get_last() / 2.0f)));
+
+    for (size_t i = get_amount_of_digits() - 1; i--> 0;)
+    {
+        bool left_is_even = operator[](i + 1) % 2 == 1;
+        denominator.data.push_back(static_cast<digit_t>(floorf((operator[](i) + static_cast<int>(left_is_even) * 10.0f) / 2.0f)));
+    }
+
+    // for (size_t i = 1; i < get_amount_of_digits(); i++)
+    // {
+    //     bool left_is_even = operator[](i - 1) % 2 == 1;
+    //     denominator.data.push_back(static_cast<digit_t>(floorf((operator[](i) + static_cast<int>(left_is_even) * 10.0f) / 2.0f)));
+    // }
+    
+    // while (copy >= p_other)
+    // {
+    //     copy = copy - p_other;
+    //     denominator = denominator + Number("1");
+    // }
+
+    return denominator;
+}
+
 size_t Number::get_amount_of_digits() const
 {
     return data.size();
@@ -181,9 +224,103 @@ fundamental_t Number::get_fundamental() const
     fundamental_t num{0};
     for (size_t i = 0; i < get_amount_of_digits(); i++)
     {
-        num += pow(10, i) * operator[](i);
+        num += std::pow(10, i) * operator[](i);
     }
     return num;
+}
+
+bool Number::operator<(const Number& p_other) const
+{
+    if (get_amount_of_digits() < p_other.get_amount_of_digits())
+    {
+        return true;
+    }
+
+    if (get_amount_of_digits() > p_other.get_amount_of_digits())
+    {
+        return false;
+    }
+
+    for (size_t i = 0; i < get_amount_of_digits(); i++)
+    {
+        if (operator[](i) < p_other[i])
+        {
+            return true;
+        }
+
+        if (operator[](i) > p_other[i])
+        {
+            return false;
+        }
+    }
+
+    return false;
+}
+
+bool Number::operator>(const Number& p_other) const
+{
+    if (get_amount_of_digits() > p_other.get_amount_of_digits())
+    {
+        return true;
+    }
+
+    if (get_amount_of_digits() < p_other.get_amount_of_digits())
+    {
+        return false;
+    }
+
+    for (size_t i = 0; i < get_amount_of_digits(); i++)
+    {
+        if (operator[](i) > p_other[i])
+        {
+            return true;
+        }
+
+        if (operator[](i) < p_other[i])
+        {
+            return false;
+        }
+    }
+
+    return false;
+}
+
+bool Number::operator==(const Number& p_other) const
+{
+    if (get_amount_of_digits() != p_other.get_amount_of_digits())
+    {
+        return false;
+    }
+
+    for (size_t i = 0; i < get_amount_of_digits(); i++)
+    {
+        if (operator[](i) != p_other[i])
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool Number::operator!=(const Number& p_other) const
+{
+    return !operator==(p_other);
+}
+
+bool Number::operator>=(const Number& p_other) const
+{
+    return operator>(p_other) || operator==(p_other);
+}
+
+bool Number::is_even() const
+{
+    return get_first() % 2 == 0;
+}
+
+bool Number::is_odd() const
+{
+    return !is_even();
 }
 
 void Number::print_out() const
@@ -192,5 +329,4 @@ void Number::print_out() const
     {
         std::cout << data[i];
     }
-    std::cout << std::endl;
 }
