@@ -7,6 +7,6 @@
 #include <typeinfo>
 
 #define LOG_OUT(x) std::cout << x << std::endl
-#define VAR_OUT(x) std::cout << typeid(x).name() << " " << #x << " = " << x << std::endl
+#define VAR_OUT(x) std::cout << #x << " = " << x << std::endl
 
 #endif
