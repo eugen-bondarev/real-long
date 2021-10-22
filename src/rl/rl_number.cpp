@@ -206,9 +206,16 @@ Number& Number::operator+=(const Number& p_other)
     return (*this);
 }
 
+Number& Number::operator-=(const Number& p_other)
+{
+    Number result = (*this) - p_other;
+    (*this) = result;
+    return (*this);
+}
+
 void Number::check_separator()
 {
-    if ((separator) == digit_count())
+    if (separator == digit_count())
     {
         separator = 0;
     }

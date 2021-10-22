@@ -47,6 +47,7 @@ public:
     Number operator-(const Number& p_other) const;
 
     Number& operator+=(const Number& p_other);
+    Number& operator-=(const Number& p_other);
 
     bool operator>(const Number& p_other) const;
     bool operator<(const Number& p_other) const;
