@@ -5,9 +5,9 @@ using rl::Number;
 
 int main()
 {
-    const Number a = "1";
-    const Number b = "0";
-    const Number c = a + b;
+    Number a = "10";
+    Number b = "20";
+    Number c = a - b;
 
     a.print();
     b.print();
