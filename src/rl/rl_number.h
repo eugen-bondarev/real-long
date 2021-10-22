@@ -48,10 +48,15 @@ public:
 
     Number& operator+=(const Number& p_other);
 
+    bool operator>(const Number& p_other) const;
+    bool operator<(const Number& p_other) const;
+
     str_t to_string() const;
     void print() const;
 
 private:
+    void check_separator();
+
     bool sign{true};
     vec_t<digit_t> data;
     size_t separator{0};
