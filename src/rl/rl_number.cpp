@@ -5,14 +5,24 @@
 
 namespace rl {
 
+static void init_from_str(Number& p_num, const str_t& p_str)
+{
+    p_num.data.reserve(p_str.size());
+
+    for (size_t i = 0; i < p_str.size(); ++i)
+    {
+        p_num.data.push_back(static_cast<digit_t>(p_str[i] - '0'));
+    }
+}
+
 Number::Number(const str_t& p_num)
 {
-    data.reserve(p_num.size());
+    init_from_str((*this), p_num);
+}
 
-    for (size_t i = 0; i < p_num.size(); ++i)
-    {
-        data.push_back(static_cast<digit_t>(p_num[i] - '0'));
-    }
+Number::Number(const char* p_c_str)
+{
+    init_from_str((*this), str_t(p_c_str));
 }
 
 Number::Number(const vec_t<digit_t>& p_data) : data{p_data}
@@ -69,7 +79,7 @@ Number Number::operator+(const Number& p_other) const
     Number c; c.data.reserve(max_size);
 
     size_t carry{0};
-    for (size_t i = 0; i < max_size; i++)
+    for (size_t i = 0; i < max_size; ++i)
     {
         const digit_t a_digit{a.get_or_0(i)};
         const digit_t b_digit{b.get_or_0(i)};

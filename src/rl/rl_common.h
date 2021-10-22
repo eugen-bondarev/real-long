@@ -16,6 +16,9 @@ using vec_t = std::vector<T>;
 
 using digit_t = int;
 
+using fundamental_f_t = float;
+using fundamental_i_t = long long;
+
 #define RL_LOG_OUT(x) std::cout << x
 #define RL_VAR_OUT(x) std::cout << #x << " = " << x << std::endl
 #define RL_LINE_OUT(x) std::cout << x << std::endl

@@ -5,13 +5,12 @@ using rl::Number;
 
 int main()
 {
-    Number a("98");
-    Number b("2");
+    const Number a = "1";
+    const Number b = "0";
+    const Number c = a + b;
 
     a.print();
     b.print();
-
-    auto c = a + b;
     c.print();
 
     return 0;
