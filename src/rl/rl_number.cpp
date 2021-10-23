@@ -158,6 +158,29 @@ void Number::trim_left()
             copy.push_back(data[i]);
         }
     }
+    else if (separator == 0)
+    {
+        bool started{false};
+        for (size_t i = 0; i < digit_count(); i++)
+        {
+            if (data[i] == 0)
+            {
+                if (started)
+                {
+                    copy.push_back(data[i]);
+                }
+            }
+            else
+            {
+                started = true;
+                copy.push_back(data[i]);
+            }
+        }
+        if (!started)
+        {
+            copy.resize(1, 0);
+        }
+    }
     else
     {
         bool started{false};
@@ -179,10 +202,6 @@ void Number::trim_left()
                 started = true;
                 copy.push_back(data[i]);
             }
-        }
-        if (!started)
-        {
-            copy.resize(1, 0);
         }
     }
 
@@ -230,8 +249,8 @@ void Number::trim_right()
 
 void Number::trim()
 {
-    trim_left();
-    trim_right();
+    // trim_left();
+    // trim_right();
 }
 
 Number Number::operator-(const Number& p_other) const

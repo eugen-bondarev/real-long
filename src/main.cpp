@@ -6,8 +6,8 @@ using rl::Number;
 int main()
 {
     Number a = "25";
-    Number b = "25";
-    Number c = b - a;
+    Number b = "25.0000000000000001";
+    Number c = a - b;
 
     a.print();
     b.print();
