@@ -55,6 +55,8 @@ public:
     str_t to_string() const;
     void print() const;
 
+    fundamental_f_t get_fundamental() const;
+
 private:
     void check_separator();
     void trim_left();

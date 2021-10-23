@@ -145,111 +145,47 @@ Number Number::operator+(const Number& p_other) const
 
 void Number::trim_left()
 {
-    if (data[0] != 0) return;
-
-    vec_t<digit_t> copy;
-    copy.reserve(data.size());
-    
-    size_t shift{0};
-    if (separator == 1)
+    bool only_zeros{true};
+    for (size_t i = 0; i < whole_part_size(); i++)
     {
-        for (size_t i = 0; i < separator; i++)
+        if (data[i] != 0)
         {
-            copy.push_back(data[i]);
-        }
-    }
-    else if (separator == 0)
-    {
-        bool started{false};
-        for (size_t i = 0; i < digit_count(); i++)
-        {
-            if (data[i] == 0)
-            {
-                if (started)
-                {
-                    copy.push_back(data[i]);
-                }
-            }
-            else
-            {
-                started = true;
-                copy.push_back(data[i]);
-            }
-        }
-        if (!started)
-        {
-            copy.resize(1, 0);
-        }
-    }
-    else
-    {
-        bool started{false};
-        for (size_t i = 0; i < separator; i++)
-        {
-            if (data[i] == 0)
-            {
-                if (started)
-                {
-                    copy.push_back(data[i]);
-                }
-                else
-                {
-                    shift += 1;
-                }
-            }
-            else
-            {
-                started = true;
-                copy.push_back(data[i]);
-            }
+            only_zeros = false;
         }
     }
 
-    if (separator != 0)
+    if (only_zeros)
     {
-        for (size_t i = separator; i < digit_count(); i++)
+        data.erase(std::begin(data) + whole_part_size() - 1);
+        if (digit_count() == 0)
         {
-            copy.push_back(data[i]);
+            data = {0};
         }
-
-        separator -= shift;
+        return;
     }
 
-    data = copy;
-}
-
-void Number::trim_right()
-{
-    if (data[data.size() - 1] != 0 || separator == 0) return;
-
-    size_t cut_from{0};
-
-    for (size_t i = digit_count(); i-->separator;)
+    size_t last_fraction_size{fraction_part_size()};
+    size_t first_non_zero{0};
+    for (size_t i = 0; i < whole_part_size(); i++)
     {
-        if (data[i] == 0)
+        if (data[i] != 0)
         {
-            cut_from = i;
-        }
-        else
-        {
+            first_non_zero = i;
             break;
         }
     }
 
-    vec_t<digit_t> copy;
-    copy.reserve(data.size());
+    data.erase(std::begin(data), std::begin(data) + first_non_zero);
+    separator = digit_count() - last_fraction_size;
+}
 
-    for (size_t i = 0; i < cut_from; i++)
-    {
-        copy.push_back(data[i]);
-    }
-
-    data = copy;
+void Number::trim_right()
+{
 }
 
 void Number::trim()
 {
-    // trim_left();
+    trim_left();
     // trim_right();
 }
 
@@ -260,7 +196,7 @@ Number Number::operator-(const Number& p_other) const
 
     const Number& a{greater};
     const Number& b{less};
-    const bool this_is_less{this == &b};
+    const bool    this_is_less{this == &b};
     const size_t  largest_whole_part_size{std::max(a.whole_part_size(), b.whole_part_size())};
     const size_t  largest_fraction_part_size{std::max(a.fraction_part_size(), b.fraction_part_size())};
     const size_t  max_size{largest_whole_part_size + largest_fraction_part_size};
@@ -279,7 +215,6 @@ Number Number::operator-(const Number& p_other) const
         const int b_shift{static_cast<int>(b.fraction_part_size() - a.fraction_part_size())};
         const digit_t a_digit{a.get_or_0(i, a_shift < 0 ? a_shift : 0)};
         const digit_t b_digit{b.get_or_0(i, b_shift < 0 ? b_shift : 0)};
-
         const digit_t c_digit{static_cast<digit_t>(a_digit - b_digit - carry)};
         digit_t c_final{c_digit};
         
@@ -407,6 +342,18 @@ bool Number::operator<(const Number& p_other) const
     }
 
     return false;
+}
+
+fundamental_f_t Number::get_fundamental() const
+{
+    fundamental_f_t result{0};
+    for (size_t i = 0; i < digit_count(); ++i)
+    {
+        result += operator[](i) * pow(10, i);
+    }
+    result /= pow(10, (digit_count() - separator));
+    result *= static_cast<int>(sign) * 2 - 1;
+    return result;
 }
 
 }
