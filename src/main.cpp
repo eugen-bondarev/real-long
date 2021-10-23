@@ -5,9 +5,9 @@ using rl::Number;
 
 int main()
 {
-    Number a = "1";
-    Number b = "5";
-    Number c = a - b;
+    Number a = "25";
+    Number b = "25";
+    Number c = b - a;
 
     a.print();
     b.print();

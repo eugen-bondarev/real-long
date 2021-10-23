@@ -57,6 +57,9 @@ public:
 
 private:
     void check_separator();
+    void trim_left();
+    void trim_right();
+    void trim();
 
     bool sign{true};
     vec_t<digit_t> data;
