@@ -3,24 +3,33 @@
 
 using rl::Number;
 
-void tests()
+float gen_rand(float p_from, float p_to)
+{
+    return rand() / static_cast<float>(RAND_MAX) * (p_to - p_from) + p_from;
+}
+
+template <bool p_logging>
+void perform_tests()
 {
     const size_t test_count{1000};
     float error{0};
 
     for (size_t i = 0; i < test_count; i++)
     {
-        rl::fundamental_f_t af = rand() / static_cast<float>(RAND_MAX) * 10;
-        rl::fundamental_f_t bf = rand() / static_cast<float>(RAND_MAX) * 10;
-        rl::fundamental_f_t cf = af + bf;
+        rl::fundamental_f_t af = gen_rand(-1000, 1000);
+        rl::fundamental_f_t bf = gen_rand(-1000, 1000);
+        rl::fundamental_f_t cf = af - bf;
         
         Number a = std::to_string(af);
         Number b = std::to_string(bf);
-        Number c = a + b;
+        Number c = a - b;
 
-        RL_LINE_OUT(af << " - " << bf << " = " << cf);
-        RL_LINE_OUT(a.to_string() << " - " << b.to_string() << " = " << c.to_string());
-        RL_LINE_OUT("error: " << (std::abs(c.get_fundamental()) - std::abs(cf)));
+        if (p_logging)
+        {
+            RL_LINE_OUT(af << " - " << bf << " = " << cf);
+            RL_LINE_OUT(a.to_string() << " - " << b.to_string() << " = " << c.to_string());
+            RL_LINE_OUT("error: " << (std::abs(c.get_fundamental()) - std::abs(cf)));
+        }
 
         error += std::abs(c.get_fundamental()) - std::abs(cf);
     }
@@ -30,9 +39,12 @@ void tests()
 
 int main()
 {
-    tests();
-    // Number a = "8";
-    // Number b = "7.5";
+    srand(time(nullptr));
+
+    perform_tests<false>();
+
+    // Number a = "5";
+    // Number b = "-10";
     // Number c = a - b;
 
     // a.print();

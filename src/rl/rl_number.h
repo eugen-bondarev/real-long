@@ -19,6 +19,13 @@ public:
     Number(const char* p_c_str);
     Number(const vec_t<digit_t>& p_data);
 
+    bool is_positive() const;
+    bool is_negative() const;
+    bool is_zero() const;
+
+    Number take_positive() const;
+    Number take_negative() const;
+
     /**
      * Number a = "1234", a.in_bounds(0) = true, a.in_bounds(4) = false;
      */
@@ -51,6 +58,7 @@ public:
 
     bool operator>(const Number& p_other) const;
     bool operator<(const Number& p_other) const;
+    bool operator==(const Number& p_other) const;
 
     str_t to_string() const;
     void print() const;

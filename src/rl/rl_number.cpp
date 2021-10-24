@@ -97,8 +97,126 @@ digit_t Number::get_or_0(const size_t p_i, const int p_shift) const
     return in_bounds(final_i) ? operator[](final_i) : 0;
 }
 
+bool Number::is_positive() const
+{
+    return !is_zero() && sign;
+}
+
+bool Number::is_negative() const
+{
+    return !is_zero() && !sign;
+}
+
+bool Number::is_zero() const
+{
+    return (*this) == Number("0");
+}
+
+Number Number::take_positive() const
+{
+    if (is_positive()) { return (*this); }
+
+    Number result = (*this); result.sign = true;
+    return result;
+}
+
+Number Number::take_negative() const
+{
+    if (is_negative()) { return (*this); }
+
+    Number result = (*this); result.sign = false;
+    return result;
+}
+
+void Number::trim_left()
+{
+    if (data[0] != 0) return;
+
+    size_t last_fraction_size{fraction_part_size()};
+    size_t first_non_zero{whole_part_size() - 1};
+    for (size_t i = 0; i < whole_part_size(); i++)
+    {
+        if (data[i] != 0)
+        {
+            first_non_zero = i;
+            break;
+        }
+    }
+
+    if (first_non_zero != 0)
+    {
+        data.erase(std::begin(data), std::begin(data) + first_non_zero);
+    }
+    else
+    {
+        data.erase(std::begin(data), std::begin(data) + whole_part_size() - 1);
+    }
+
+    separator = digit_count() - last_fraction_size;
+}
+
+void Number::trim_right()
+{
+    if (data[data.size() - 1] != 0) return;
+
+    size_t first_non_zero{0};
+
+    for (size_t i = digit_count(); i-->digit_count() - fraction_part_size();)
+    {
+        if (data[i] != 0)
+        {
+            first_non_zero = i;
+            break;
+        }
+    }
+
+    if (first_non_zero != 0)
+    {
+        data.erase(std::begin(data) + first_non_zero + 1, std::end(data));
+    }
+    else
+    {
+        data.erase(std::begin(data) + digit_count() - fraction_part_size(), std::end(data));
+    }
+}
+
+void Number::trim()
+{
+    trim_left();
+    trim_right();
+}
+
+struct DigitTable
+{
+    digit_t a;
+    digit_t b;
+
+    DigitTable(const Number& p_a, const Number& p_b, const size_t p_i)
+    {
+        const int a_shift{static_cast<int>(p_a.fraction_part_size() - p_b.fraction_part_size())};
+        const int b_shift{static_cast<int>(p_b.fraction_part_size() - p_a.fraction_part_size())};
+        a = p_a.get_or_0(p_i, a_shift < 0 ? a_shift : 0);
+        b = p_b.get_or_0(p_i, b_shift < 0 ? b_shift : 0);
+    }
+};
+
 Number Number::operator+(const Number& p_other) const
 {
+    if (is_negative() && p_other.is_positive())
+    {
+        return p_other - take_positive();
+    }
+
+    if (is_negative() && p_other.is_negative())
+    {
+        return (take_positive() + p_other.take_positive()).take_negative();
+    }
+
+    if (p_other.is_negative())
+    {
+        return (*this) - p_other.take_positive();
+    }
+
     const Number& a{(*this)};
     const Number& b{p_other};
     const size_t  largest_whole_part_size{std::max(a.whole_part_size(), b.whole_part_size())};
@@ -110,11 +228,8 @@ Number Number::operator+(const Number& p_other) const
     size_t carry{0};
     for (size_t i = 0; i < max_size; ++i)
     {
-        const int a_shift{static_cast<int>(a.fraction_part_size() - b.fraction_part_size())};
-        const int b_shift{static_cast<int>(b.fraction_part_size() - a.fraction_part_size())};
-        const digit_t a_digit{a.get_or_0(i, a_shift < 0 ? a_shift : 0)};
-        const digit_t b_digit{b.get_or_0(i, b_shift < 0 ? b_shift : 0)};
-        const digit_t c_digit{a_digit + b_digit + static_cast<digit_t>(carry)};
+        DigitTable digit(a, b, i);
+        const digit_t c_digit{digit.a + digit.b + static_cast<digit_t>(carry)};
         digit_t c_final{c_digit};
 
         if (c_digit > 9)
@@ -138,72 +253,24 @@ Number Number::operator+(const Number& p_other) const
 
     std::reverse(std::begin(c.data), std::end(c.data));
 
+    c.trim();
     c.check_separator();
 
     return c;
 }
 
-void Number::trim_left()
-{
-    bool only_zeros{true};
-    for (size_t i = 0; i < whole_part_size(); i++)
-    {
-        if (data[i] != 0)
-        {
-            only_zeros = false;
-        }
-    }
-
-    if (only_zeros)
-    {
-        data.erase(std::begin(data), std::begin(data) + whole_part_size() - 1);
-
-        if (digit_count() == 0)
-        {
-            data = {0};
-        }
-        return;
-    }
-
-    size_t last_fraction_size{fraction_part_size()};
-    size_t first_non_zero{0};
-    for (size_t i = 0; i < whole_part_size(); i++)
-    {
-        if (data[i] != 0)
-        {
-            first_non_zero = i;
-            break;
-        }
-    }
-
-    data.erase(std::begin(data), std::begin(data) + first_non_zero);
-    separator = digit_count() - last_fraction_size;
-}
-
-void Number::trim_right()
-{
-    size_t first_non_zero{whole_part_size()};
-
-    for (size_t i = digit_count(); i-->digit_count() - fraction_part_size();)
-    {
-        if (data[i] != 0)
-        {
-            first_non_zero = i;
-            break;
-        }
-    }
-
-    data.erase(std::begin(data) + first_non_zero + 1, std::end(data));
-}
-
-void Number::trim()
-{
-    trim_left();
-    trim_right();
-}
-
 Number Number::operator-(const Number& p_other) const
 {
+    if (is_negative() && p_other.is_positive())
+    {
+        return (take_positive() + p_other.take_positive()).take_negative();
+    }
+
+    if (p_other.is_negative())
+    {
+        return (*this) + p_other.take_positive();
+    }
+
     const Number& greater{(*this) > p_other ? (*this) : p_other};
     const Number& less{(*this) < p_other ? (*this) : p_other};
 
@@ -224,11 +291,8 @@ Number Number::operator-(const Number& p_other) const
     size_t carry{0};
     for (size_t i = 0; i < max_size; ++i)
     {
-        const int a_shift{static_cast<int>(a.fraction_part_size() - b.fraction_part_size())};
-        const int b_shift{static_cast<int>(b.fraction_part_size() - a.fraction_part_size())};
-        const digit_t a_digit{a.get_or_0(i, a_shift < 0 ? a_shift : 0)};
-        const digit_t b_digit{b.get_or_0(i, b_shift < 0 ? b_shift : 0)};
-        const digit_t c_digit{static_cast<digit_t>(a_digit - b_digit - carry)};
+        DigitTable digit(a, b, i);
+        const digit_t c_digit{static_cast<digit_t>(digit.a - digit.b - carry)};
         digit_t c_final{c_digit};
         
         if (c_digit < 0)
@@ -355,6 +419,37 @@ bool Number::operator<(const Number& p_other) const
     }
 
     return false;
+}
+
+bool Number::operator==(const Number& p_other) const
+{
+    Number a = (*this); a.trim(); a.check_separator();
+    Number b = p_other; b.trim(); b.check_separator();
+
+    if (a.digit_count() != b.digit_count())
+    {
+        return false;
+    }
+
+    if (a.fraction_part_size() != b.fraction_part_size())
+    {
+        return false;
+    }
+
+    if (a.whole_part_size() != b.whole_part_size())
+    {
+        return false;
+    }
+
+    for (size_t i = 0; i < a.digit_count(); i++)
+    {
+        if (a.data[i] != b.data[i])
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 fundamental_f_t Number::get_fundamental() const
