@@ -40,7 +40,7 @@ num::num(const char* p_c_str)
     init_from_str((*this), str_t(p_c_str));
 }
 
-num::num(const vec_t<digit_t>& p_data) : data{p_data}
+num::num(const vec_t<digit_t>& p_data, const size_t p_separator, const bool p_sign) : data{p_data}, separator{p_separator}, sign{p_sign}
 {
 }
 
