@@ -1,7 +1,7 @@
 #include "rl/rl_number.h"
 #include "rl/rl_common.h"
 
-using rl::Number;
+using rl::num;
 
 float gen_rand(float p_from, float p_to)
 {
@@ -20,18 +20,18 @@ void perform_tests()
         rl::fundamental_t bf = gen_rand(-1000, 1000);
         rl::fundamental_t cf = af - bf;
         
-        Number a = std::to_string(af);
-        Number b = std::to_string(bf);
-        Number c = a - b;
+        num a = std::to_string(af);
+        num b = std::to_string(bf);
+        num c = a - b;
 
         if (p_logging)
         {
             RL_LINE_OUT(af << " - " << bf << " = " << cf);
-            RL_LINE_OUT(a.to_string() << " - " << b.to_string() << " = " << c.to_string());
-            RL_LINE_OUT("error: " << (std::abs(c.to_fundamental()) - std::abs(cf)));
+            RL_LINE_OUT(rl::to_string(a) << " - " << rl::to_string(b) << " = " << rl::to_string(c));
+            RL_LINE_OUT("error: " << (std::abs(rl::to_fundamental(c)) - std::abs(cf)));
         }
 
-        error += std::abs(c.to_fundamental()) - std::abs(cf);
+        error += std::abs(rl::to_fundamental(c)) - std::abs(cf);
     }
 
     RL_VAR_OUT(error);
@@ -41,15 +41,15 @@ int main()
 {
     srand(time(nullptr));
 
-    // perform_tests<false>();
+    // perform_tests<true>();
 
-    Number a = "5";
-    Number b = "-10";
-    Number c = a - b;
+    num a = "5";
+    num b = "-10";
+    num c = a - b;
 
-    a.print();
-    b.print();
-    c.print();
+    rl::print(a);
+    rl::print(b);
+    rl::print(c);
 
     return 0;
 }

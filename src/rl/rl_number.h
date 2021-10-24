@@ -7,25 +7,47 @@
 
 namespace rl {
 
-class Number final
+class num final
 {
-friend void init_from_str(Number&, const str_t&);
+friend void             init_from_str(num&, const str_t&);
+
+friend fundamental_t    to_fundamental(const num&);
+friend str_t            to_string(const num&);
+
+friend void             print(const num&);
+
+friend struct           DigitTable;
+
+friend size_t           digit_count(const num&);
+friend size_t           whole_part_size(const num&);
+friend size_t           fraction_part_size(const num&);
+
+friend bool             is_positive(const num&);
+friend bool             is_negative(const num&);
+friend bool             is_zero(const num&);
+
+friend num              take_positive(const num&);
+friend num              take_negative(const num&);
 
 private:
-    Number() = default;
+    num() = default;
 
 public:
-    Number(const str_t& p_num);
-    Number(const char* p_c_str);
-    Number(const vec_t<digit_t>& p_data);
+    num(const str_t& p_num);
+    num(const char* p_c_str);
+    num(const vec_t<digit_t>& p_data);
 
-    bool is_positive() const;
-    bool is_negative() const;
-    bool is_zero() const;
+    num operator+(const num& p_other) const;
+    num operator-(const num& p_other) const;
 
-    Number take_positive() const;
-    Number take_negative() const;
+    num& operator+=(const num& p_other);
+    num& operator-=(const num& p_other);
 
+    bool operator>(const num& p_other) const;
+    bool operator<(const num& p_other) const;
+    bool operator==(const num& p_other) const;
+
+private:
     /**
      * Number a = "1234", a.in_bounds(0) = true, a.in_bounds(4) = false;
      */
@@ -43,29 +65,6 @@ public:
      */
     digit_t get_or_0(const size_t p_i, const int p_shift = 0) const;
 
-    /**
-     * Number a = "1234", digit_count() = 4
-     */
-    size_t digit_count() const;
-    size_t whole_part_size() const;
-    size_t fraction_part_size() const;
-    
-    Number operator+(const Number& p_other) const;
-    Number operator-(const Number& p_other) const;
-
-    Number& operator+=(const Number& p_other);
-    Number& operator-=(const Number& p_other);
-
-    bool operator>(const Number& p_other) const;
-    bool operator<(const Number& p_other) const;
-    bool operator==(const Number& p_other) const;
-
-    str_t to_string() const;
-    fundamental_t to_fundamental() const;
-
-    void print() const;
-
-private:
     void check_separator();
     void trim_left();
     void trim_right();
@@ -75,6 +74,17 @@ private:
     vec_t<digit_t> data;
     size_t separator{0};
 };
+
+size_t digit_count(const num&);
+size_t whole_part_size(const num&);
+size_t fraction_part_size(const num&);
+
+str_t to_string(const num&);
+fundamental_t to_fundamental(const num&);
+void print(const num&);
+
+extern const num pi;
+extern const num e;
 
 }
 

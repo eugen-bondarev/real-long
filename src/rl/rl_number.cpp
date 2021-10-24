@@ -6,7 +6,10 @@
 
 namespace rl {
 
-static void init_from_str(Number& p_num, const str_t& p_str)
+const num pi = num("3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067982148086513282306647093844609550582231725359408128481117450284102701938521105559644622948954930381964428810975665933446128475648233786783165271201909145648566923460348610454326648213393607260249141273724587006606315588174881520920962829254091715364367892590360011330530548820466521384146951941511609433057270365759591953092186117381932611793105118548074462379962749567351885752724891227938183011949129833673362440656643086021394946395224737190702179860943702770539217176293176752384674818467669405132000568127145263560827785771342757789609173637178721468440901224953430146549585371050792279689258923542019956112129");
+const num e = num("2.718281828459045235360287471352662497757247093699959574966967627724076630353547594571382178525166427427466391932003059921817413596629043572900334295260595630738132328627943490763233829880753195251019011573834187930702154089149934884167509244761460668082264800168477411853742345442437107539077744992069551702761838606261331384583000752044933826560297606737113200709328709127443747047230696977209310141692836819025515108657463772111252389784425056953696770785449969967946864454905987931636889230098793127736178215424999229576351482208269895193668033182528869398496465105820939239829488793320362509443117301238197068416140397019837679320683282376464804295311802328782509819455815301756717361332069811250996181881593041690");
+
+static void init_from_str(num& p_num, const str_t& p_str)
 {
     p_num.data.reserve(p_str.size());
 
@@ -27,114 +30,114 @@ static void init_from_str(Number& p_num, const str_t& p_str)
     }
 }
 
-Number::Number(const str_t& p_num)
+num::num(const str_t& p_num)
 {
     init_from_str((*this), p_num);
 }
 
-Number::Number(const char* p_c_str)
+num::num(const char* p_c_str)
 {
     init_from_str((*this), str_t(p_c_str));
 }
 
-Number::Number(const vec_t<digit_t>& p_data) : data{p_data}
+num::num(const vec_t<digit_t>& p_data) : data{p_data}
 {
 }
 
-size_t Number::digit_count() const
+size_t digit_count(const num& p_num)
 {
-    return data.size();
+    return p_num.data.size();
 }
 
-size_t Number::whole_part_size() const
+size_t whole_part_size(const num& p_num)
 {
-    return separator ? separator : digit_count();
+    return p_num.separator ? p_num.separator : digit_count(p_num);
 }
 
-size_t Number::fraction_part_size() const
+size_t fraction_part_size(const num& p_num)
 {
-    return digit_count() - whole_part_size();
+    return digit_count(p_num) - whole_part_size(p_num);
 }
 
-str_t Number::to_string() const
+str_t to_string(const num& p_num)
 {
     std::stringstream stream;
-    if (!sign)
+    if (!p_num.sign)
     {
         stream << "-";
     }
-    for (size_t i = digit_count(); i-->0;)
+    for (size_t i = digit_count(p_num); i-->0;)
     {
-        stream << operator[](i);
-        if ((digit_count() - i) == separator) stream << ".";
+        stream << p_num[i];
+        if ((digit_count(p_num) - i) == p_num.separator) stream << ".";
     }
     return stream.str();
 }
 
-void Number::print() const
+void print(const num& p_num)
 {
-    RL_LINE_OUT(to_string());
+    RL_LINE_OUT(to_string(p_num));
 }
 
-digit_t& Number::operator[](const size_t p_i)
+digit_t& num::operator[](const size_t p_i)
 {
-    return data[digit_count() - 1 - p_i];
+    return data[digit_count((*this)) - 1 - p_i];
 }
 
-digit_t Number::operator[](const size_t p_i) const
+digit_t num::operator[](const size_t p_i) const
 {
-    return data[digit_count() - 1 - p_i];
+    return data[digit_count((*this)) - 1 - p_i];
 }
 
-bool Number::in_bounds(const int p_i) const
+bool num::in_bounds(const int p_i) const
 {
-    return p_i >= 0 && p_i < digit_count();
+    return p_i >= 0 && p_i < digit_count((*this));
 }
 
-digit_t Number::get_or_0(const size_t p_i, const int p_shift) const
+digit_t num::get_or_0(const size_t p_i, const int p_shift) const
 {
     const int final_i = static_cast<int>(p_i) + p_shift;
     return in_bounds(final_i) ? operator[](final_i) : 0;
 }
 
-bool Number::is_positive() const
+bool is_positive(const num& p_num)
 {
-    return !is_zero() && sign;
+    return !is_zero(p_num) && p_num.sign;
 }
 
-bool Number::is_negative() const
+bool is_negative(const num& p_num)
 {
-    return !is_zero() && !sign;
+    return !is_zero(p_num) && !p_num.sign;
 }
 
-bool Number::is_zero() const
+bool is_zero(const num& p_num)
 {
-    return (*this) == Number("0");
+    return p_num == num("0");
 }
 
-Number Number::take_positive() const
+num take_positive(const num& p_num)
 {
-    if (is_positive()) { return (*this); }
+    if (is_positive(p_num)) { return p_num; }
 
-    Number result = (*this); result.sign = true;
+    num result = p_num; result.sign = true;
     return result;
 }
 
-Number Number::take_negative() const
+num take_negative(const num& p_num)
 {
-    if (is_negative()) { return (*this); }
+    if (is_negative(p_num)) { return p_num; }
 
-    Number result = (*this); result.sign = false;
+    num result = p_num; result.sign = false;
     return result;
 }
 
-void Number::trim_left()
+void num::trim_left()
 {
     if (data[0] != 0) return;
 
-    size_t last_fraction_size{fraction_part_size()};
-    size_t first_non_zero{whole_part_size() - 1};
-    for (size_t i = 0; i < whole_part_size(); i++)
+    size_t last_fraction_size{fraction_part_size((*this))};
+    size_t first_non_zero{whole_part_size((*this)) - 1};
+    for (size_t i = 0; i < whole_part_size((*this)); i++)
     {
         if (data[i] != 0)
         {
@@ -149,19 +152,19 @@ void Number::trim_left()
     }
     else
     {
-        data.erase(std::begin(data), std::begin(data) + whole_part_size() - 1);
+        data.erase(std::begin(data), std::begin(data) + whole_part_size((*this)) - 1);
     }
 
-    separator = digit_count() - last_fraction_size;
+    separator = digit_count((*this)) - last_fraction_size;
 }
 
-void Number::trim_right()
+void num::trim_right()
 {
     if (data[data.size() - 1] != 0) return;
 
     size_t first_non_zero{0};
 
-    for (size_t i = digit_count(); i-->digit_count() - fraction_part_size();)
+    for (size_t i = digit_count((*this)); i-->digit_count((*this)) - fraction_part_size((*this));)
     {
         if (data[i] != 0)
         {
@@ -176,11 +179,11 @@ void Number::trim_right()
     }
     else
     {
-        data.erase(std::begin(data) + digit_count() - fraction_part_size(), std::end(data));
+        data.erase(std::begin(data) + digit_count((*this)) - fraction_part_size((*this)), std::end(data));
     }
 }
 
-void Number::trim()
+void num::trim()
 {
     trim_left();
     trim_right();
@@ -191,39 +194,39 @@ struct DigitTable
     digit_t a;
     digit_t b;
 
-    DigitTable(const Number& p_a, const Number& p_b, const size_t p_i)
+    DigitTable(const num& p_a, const num& p_b, const size_t p_i)
     {
-        const int a_shift{static_cast<int>(p_a.fraction_part_size() - p_b.fraction_part_size())};
-        const int b_shift{static_cast<int>(p_b.fraction_part_size() - p_a.fraction_part_size())};
+        const int a_shift{static_cast<int>(fraction_part_size(p_a) - fraction_part_size(p_b))};
+        const int b_shift{static_cast<int>(fraction_part_size(p_b) - fraction_part_size(p_a))};
         a = p_a.get_or_0(p_i, a_shift < 0 ? a_shift : 0);
         b = p_b.get_or_0(p_i, b_shift < 0 ? b_shift : 0);
     }
 };
 
-Number Number::operator+(const Number& p_other) const
+num num::operator+(const num& p_other) const
 {
-    if (is_negative() && p_other.is_positive())
+    if (is_negative((*this)) && is_positive(p_other))
     {
-        return p_other - take_positive();
+        return p_other - take_positive((*this));
     }
 
-    if (is_negative() && p_other.is_negative())
+    if (is_negative((*this)) && is_negative(p_other))
     {
-        return (take_positive() + p_other.take_positive()).take_negative();
+        return take_negative(take_positive((*this)) + take_positive(p_other));
     }
 
-    if (p_other.is_negative())
+    if (is_negative(p_other))
     {
-        return (*this) - p_other.take_positive();
+        return (*this) - take_positive(p_other);
     }
 
-    const Number& a{(*this)};
-    const Number& b{p_other};
-    const size_t  largest_whole_part_size{std::max(a.whole_part_size(), b.whole_part_size())};
-    const size_t  largest_fraction_part_size{std::max(a.fraction_part_size(), b.fraction_part_size())};
+    const num& a{(*this)};
+    const num& b{p_other};
+    const size_t  largest_whole_part_size{std::max(whole_part_size(a), whole_part_size(b))};
+    const size_t  largest_fraction_part_size{std::max(fraction_part_size(a), fraction_part_size(b))};
     const size_t  max_size{largest_whole_part_size + largest_fraction_part_size};
 
-    Number c; c.data.reserve(max_size);
+    num c; c.data.reserve(max_size);
 
     size_t carry{0};
     for (size_t i = 0; i < max_size; ++i)
@@ -259,29 +262,29 @@ Number Number::operator+(const Number& p_other) const
     return c;
 }
 
-Number Number::operator-(const Number& p_other) const
+num num::operator-(const num& p_other) const
 {
-    if (is_negative() && p_other.is_positive())
+    if (is_negative((*this)) && is_positive(p_other))
     {
-        return (take_positive() + p_other.take_positive()).take_negative();
+        return take_negative(take_positive((*this)) + take_positive(p_other));
     }
 
-    if (p_other.is_negative())
+    if (is_negative(p_other))
     {
-        return (*this) + p_other.take_positive();
+        return (*this) + take_positive(p_other);
     }
 
-    const Number& greater{(*this) > p_other ? (*this) : p_other};
-    const Number& less{(*this) < p_other ? (*this) : p_other};
+    const num& greater{(*this) > p_other ? (*this) : p_other};
+    const num& less{(*this) < p_other ? (*this) : p_other};
 
-    const Number& a{greater};
-    const Number& b{less};
+    const num& a{greater};
+    const num& b{less};
     const bool    this_is_less{this == &b};
-    const size_t  largest_whole_part_size{std::max(a.whole_part_size(), b.whole_part_size())};
-    const size_t  largest_fraction_part_size{std::max(a.fraction_part_size(), b.fraction_part_size())};
+    const size_t  largest_whole_part_size{std::max(whole_part_size(a), whole_part_size(b))};
+    const size_t  largest_fraction_part_size{std::max(fraction_part_size(a), fraction_part_size(b))};
     const size_t  max_size{largest_whole_part_size + largest_fraction_part_size};
 
-    Number c; c.data.reserve(max_size);
+    num c; c.data.reserve(max_size);
 
     if (largest_fraction_part_size)
     {
@@ -321,51 +324,51 @@ Number Number::operator-(const Number& p_other) const
     return c;
 }
 
-Number& Number::operator+=(const Number& p_other)
+num& num::operator+=(const num& p_other)
 {
-    Number result = (*this) + p_other;
+    num result = (*this) + p_other;
     (*this) = result;
     return (*this);
 }
 
-Number& Number::operator-=(const Number& p_other)
+num& num::operator-=(const num& p_other)
 {
-    Number result = (*this) - p_other;
+    num result = (*this) - p_other;
     (*this) = result;
     return (*this);
 }
 
-void Number::check_separator()
+void num::check_separator()
 {
-    if (separator == digit_count())
+    if (separator == digit_count((*this)))
     {
         separator = 0;
     }
 }
 
-bool Number::operator>(const Number& p_other) const
+bool num::operator>(const num& p_other) const
 {
-    if (whole_part_size() > p_other.whole_part_size())
+    if (whole_part_size((*this)) > whole_part_size(p_other))
     {
         return true;
     }
 
-    if (p_other.whole_part_size() > whole_part_size())
+    if (whole_part_size(p_other) > whole_part_size((*this)))
     {
         return false;
     }
 
-    const Number& a{(*this)};
-    const Number& b{p_other};
+    const num& a{(*this)};
+    const num& b{p_other};
 
-    const size_t  largest_whole_part_size{std::max(a.whole_part_size(), b.whole_part_size())};
-    const size_t  largest_fraction_part_size{std::max(a.fraction_part_size(), b.fraction_part_size())};
+    const size_t  largest_whole_part_size{std::max(whole_part_size(a), whole_part_size(b))};
+    const size_t  largest_fraction_part_size{std::max(fraction_part_size(a), fraction_part_size(b))};
     const size_t  max_size{largest_whole_part_size + largest_fraction_part_size};
     
     for (size_t i = max_size; i-->0;)
     {
-        const int a_shift{static_cast<int>(a.fraction_part_size() - b.fraction_part_size())};
-        const int b_shift{static_cast<int>(b.fraction_part_size() - a.fraction_part_size())};
+        const int a_shift{static_cast<int>(fraction_part_size(a) - fraction_part_size(b))};
+        const int b_shift{static_cast<int>(fraction_part_size(b) - fraction_part_size(a))};
         const digit_t a_digit{a.get_or_0(i, a_shift < 0 ? a_shift : 0)};
         const digit_t b_digit{b.get_or_0(i, b_shift < 0 ? b_shift : 0)};
 
@@ -382,29 +385,29 @@ bool Number::operator>(const Number& p_other) const
     return false;
 }
 
-bool Number::operator<(const Number& p_other) const
+bool num::operator<(const num& p_other) const
 {
-    if (whole_part_size() > p_other.whole_part_size())
+    if (whole_part_size((*this)) > whole_part_size(p_other))
     {
         return false;
     }
 
-    if (p_other.whole_part_size() > whole_part_size())
+    if (whole_part_size(p_other) > whole_part_size((*this)))
     {
         return true;
     }
 
-    const Number& a{(*this)};
-    const Number& b{p_other};
+    const num& a{(*this)};
+    const num& b{p_other};
 
-    const size_t  largest_whole_part_size{std::max(a.whole_part_size(), b.whole_part_size())};
-    const size_t  largest_fraction_part_size{std::max(a.fraction_part_size(), b.fraction_part_size())};
+    const size_t  largest_whole_part_size{std::max(whole_part_size(a), whole_part_size(b))};
+    const size_t  largest_fraction_part_size{std::max(fraction_part_size(a), fraction_part_size(b))};
     const size_t  max_size{largest_whole_part_size + largest_fraction_part_size};
     
     for (size_t i = max_size; i-->0;)
     {
-        const int a_shift{static_cast<int>(a.fraction_part_size() - b.fraction_part_size())};
-        const int b_shift{static_cast<int>(b.fraction_part_size() - a.fraction_part_size())};
+        const int a_shift{static_cast<int>(fraction_part_size(a) - fraction_part_size(b))};
+        const int b_shift{static_cast<int>(fraction_part_size(b) - fraction_part_size(a))};
         const digit_t a_digit{a.get_or_0(i, a_shift < 0 ? a_shift : 0)};
         const digit_t b_digit{b.get_or_0(i, b_shift < 0 ? b_shift : 0)};
 
@@ -421,27 +424,27 @@ bool Number::operator<(const Number& p_other) const
     return false;
 }
 
-bool Number::operator==(const Number& p_other) const
+bool num::operator==(const num& p_other) const
 {
-    Number a = (*this); a.trim(); a.check_separator();
-    Number b = p_other; b.trim(); b.check_separator();
+    num a = (*this); a.trim(); a.check_separator();
+    num b = p_other; b.trim(); b.check_separator();
 
-    if (a.digit_count() != b.digit_count())
+    if (digit_count(a) != digit_count(b))
     {
         return false;
     }
 
-    if (a.fraction_part_size() != b.fraction_part_size())
+    if (fraction_part_size(a) != fraction_part_size(b))
     {
         return false;
     }
 
-    if (a.whole_part_size() != b.whole_part_size())
+    if (whole_part_size(a) != whole_part_size(b))
     {
         return false;
     }
 
-    for (size_t i = 0; i < a.digit_count(); i++)
+    for (size_t i = 0; i < digit_count(a); i++)
     {
         if (a.data[i] != b.data[i])
         {
@@ -452,15 +455,15 @@ bool Number::operator==(const Number& p_other) const
     return true;
 }
 
-fundamental_t Number::to_fundamental() const
+fundamental_t to_fundamental(const num& p_num)
 {
     fundamental_t result{0};
-    for (size_t i = 0; i < digit_count(); ++i)
+    for (size_t i = 0; i < digit_count(p_num); ++i)
     {
-        result += operator[](i) * pow(10, i);
+        result += p_num[i] * pow(10, i);
     }
-    result /= pow(10, (digit_count() - separator));
-    result *= static_cast<int>(sign) * 2 - 1;
+    result /= pow(10, (digit_count(p_num) - p_num.separator));
+    result *= static_cast<int>(p_num.sign) * 2 - 1;
     return result;
 }
 
