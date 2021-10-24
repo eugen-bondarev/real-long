@@ -452,9 +452,9 @@ bool Number::operator==(const Number& p_other) const
     return true;
 }
 
-fundamental_f_t Number::get_fundamental() const
+fundamental_t Number::to_fundamental() const
 {
-    fundamental_f_t result{0};
+    fundamental_t result{0};
     for (size_t i = 0; i < digit_count(); ++i)
     {
         result += operator[](i) * pow(10, i);

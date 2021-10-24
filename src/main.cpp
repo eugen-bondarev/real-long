@@ -16,9 +16,9 @@ void perform_tests()
 
     for (size_t i = 0; i < test_count; i++)
     {
-        rl::fundamental_f_t af = gen_rand(-1000, 1000);
-        rl::fundamental_f_t bf = gen_rand(-1000, 1000);
-        rl::fundamental_f_t cf = af - bf;
+        rl::fundamental_t af = gen_rand(-1000, 1000);
+        rl::fundamental_t bf = gen_rand(-1000, 1000);
+        rl::fundamental_t cf = af - bf;
         
         Number a = std::to_string(af);
         Number b = std::to_string(bf);
@@ -28,10 +28,10 @@ void perform_tests()
         {
             RL_LINE_OUT(af << " - " << bf << " = " << cf);
             RL_LINE_OUT(a.to_string() << " - " << b.to_string() << " = " << c.to_string());
-            RL_LINE_OUT("error: " << (std::abs(c.get_fundamental()) - std::abs(cf)));
+            RL_LINE_OUT("error: " << (std::abs(c.to_fundamental()) - std::abs(cf)));
         }
 
-        error += std::abs(c.get_fundamental()) - std::abs(cf);
+        error += std::abs(c.to_fundamental()) - std::abs(cf);
     }
 
     RL_VAR_OUT(error);
@@ -41,15 +41,15 @@ int main()
 {
     srand(time(nullptr));
 
-    perform_tests<false>();
+    // perform_tests<false>();
 
-    // Number a = "5";
-    // Number b = "-10";
-    // Number c = a - b;
+    Number a = "5";
+    Number b = "-10";
+    Number c = a - b;
 
-    // a.print();
-    // b.print();
-    // c.print();
+    a.print();
+    b.print();
+    c.print();
 
     return 0;
 }

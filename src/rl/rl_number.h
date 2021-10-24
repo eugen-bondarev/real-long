@@ -61,9 +61,9 @@ public:
     bool operator==(const Number& p_other) const;
 
     str_t to_string() const;
-    void print() const;
+    fundamental_t to_fundamental() const;
 
-    fundamental_f_t get_fundamental() const;
+    void print() const;
 
 private:
     void check_separator();
