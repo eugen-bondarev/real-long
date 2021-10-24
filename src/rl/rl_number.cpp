@@ -156,7 +156,8 @@ void Number::trim_left()
 
     if (only_zeros)
     {
-        data.erase(std::begin(data) + whole_part_size() - 1);
+        data.erase(std::begin(data), std::begin(data) + whole_part_size() - 1);
+
         if (digit_count() == 0)
         {
             data = {0};
@@ -181,12 +182,24 @@ void Number::trim_left()
 
 void Number::trim_right()
 {
+    size_t first_non_zero{whole_part_size()};
+
+    for (size_t i = digit_count(); i-->digit_count() - fraction_part_size();)
+    {
+        if (data[i] != 0)
+        {
+            first_non_zero = i;
+            break;
+        }
+    }
+
+    data.erase(std::begin(data) + first_non_zero + 1, std::end(data));
 }
 
 void Number::trim()
 {
     trim_left();
-    // trim_right();
+    trim_right();
 }
 
 Number Number::operator-(const Number& p_other) const

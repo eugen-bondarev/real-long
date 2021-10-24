@@ -12,11 +12,11 @@ void tests()
     {
         rl::fundamental_f_t af = rand() / static_cast<float>(RAND_MAX) * 10;
         rl::fundamental_f_t bf = rand() / static_cast<float>(RAND_MAX) * 10;
-        rl::fundamental_f_t cf = af - bf;
+        rl::fundamental_f_t cf = af + bf;
         
         Number a = std::to_string(af);
         Number b = std::to_string(bf);
-        Number c = a - b;
+        Number c = a + b;
 
         RL_LINE_OUT(af << " - " << bf << " = " << cf);
         RL_LINE_OUT(a.to_string() << " - " << b.to_string() << " = " << c.to_string());
@@ -31,15 +31,13 @@ void tests()
 int main()
 {
     tests();
-    // Number a = "49.001";
-    // Number b = "55";
+    // Number a = "8";
+    // Number b = "7.5";
     // Number c = a - b;
 
     // a.print();
     // b.print();
     // c.print();
-
-    // RL_VAR_OUT(a.get_fundamental());
 
     return 0;
 }
