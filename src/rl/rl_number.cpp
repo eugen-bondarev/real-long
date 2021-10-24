@@ -100,6 +100,11 @@ digit_t num::get_or_0(const size_t p_i, const int p_shift) const
     return in_bounds(final_i) ? operator[](final_i) : 0;
 }
 
+bool is_even(const num& p_num)
+{
+    return p_num[0] % 2 == 0;
+}
+
 bool is_positive(const num& p_num)
 {
     return !is_zero(p_num) && p_num.sign;
@@ -411,6 +416,28 @@ num num::operator*(const num& p_other) const
     c.trim();
     c.check_separator();
 
+    c.sign = !((!sign) ^ (!p_other.sign));
+
+    return c;
+}
+
+num num::pow(const num& p_power) const
+{
+    num c = (*this);
+    for (num i = "0"; i < p_power - "1"; i = i + "1")
+    {
+        c = c * (*this);
+    }
+    return c;
+}
+
+num num::factorial() const
+{
+    num c = (*this);
+    for (num i = (*this) - "1"; i > "0"; i = i - "1")
+    {
+        c = c * i;
+    }
     return c;
 }
 
@@ -545,6 +572,11 @@ bool num::operator==(const num& p_other) const
     return true;
 }
 
+bool num::operator!=(const num& p_other) const
+{
+    return !(operator==(p_other));
+}
+
 fundamental_t to_fundamental(const num& p_num)
 {
     fundamental_t result{0};
@@ -557,4 +589,9 @@ fundamental_t to_fundamental(const num& p_num)
     return result;
 }
 
+}
+
+::rl::num operator"" _l(const char* p_str)
+{
+    return ::rl::num(p_str);
 }

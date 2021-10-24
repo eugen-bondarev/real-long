@@ -25,10 +25,13 @@ friend size_t        digit_count(const num&);
 friend size_t        whole_part_size(const num&);
 friend size_t        fraction_part_size(const num&);
 
+friend bool          is_even(const num&);
 friend bool          is_positive(const num&);
 friend bool          is_negative(const num&);
 friend bool          is_fraction(const num&);
 friend bool          is_zero(const num&);
+
+friend num           operator"" _rl(const char* p_str);
 
 friend num           take_positive(const num&);
 friend num           take_negative(const num&);
@@ -41,6 +44,9 @@ public:
     num(const char* p_c_str);
     num(const vec_t<digit_t>& p_data, const size_t p_separator = 0, const bool p_sign = true);
 
+    num pow(const num& p_power) const;
+    num factorial() const;
+
     num operator+(const num& p_other) const;
     num operator-(const num& p_other) const;
     num operator*(const num& p_other) const;
@@ -51,6 +57,7 @@ public:
     [[nodiscard]] bool operator>(const num& p_other) const;
     [[nodiscard]] bool operator<(const num& p_other) const;
     [[nodiscard]] bool operator==(const num& p_other) const;
+    [[nodiscard]] bool operator!=(const num& p_other) const;
 
 private:
     [[nodiscard]] bool      in_bounds(const int p_i) const;
@@ -68,6 +75,7 @@ private:
     size_t separator{0};
 };
 
+[[nodiscard]] bool          is_even(const num&);
 [[nodiscard]] bool          is_positive(const num&);
 [[nodiscard]] bool          is_negative(const num&);
 [[nodiscard]] bool          is_zero(const num&);
@@ -89,5 +97,7 @@ extern const num pi;
 extern const num e;
 
 }
+
+::rl::num operator"" _l(const char* p_str);
 
 #endif
