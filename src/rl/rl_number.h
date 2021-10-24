@@ -9,7 +9,10 @@ namespace rl {
 
 class num final
 {
+friend num           plus(const num& p_a, const num& p_b);
+
 friend void          init_from_str(num&, const str_t&);
+friend num           num_times_digit(const num&, const digit_t);
 
 friend fundamental_t to_fundamental(const num&);
 friend str_t         to_string(const num&);
@@ -24,6 +27,7 @@ friend size_t        fraction_part_size(const num&);
 
 friend bool          is_positive(const num&);
 friend bool          is_negative(const num&);
+friend bool          is_fraction(const num&);
 friend bool          is_zero(const num&);
 
 friend num           take_positive(const num&);
@@ -39,6 +43,7 @@ public:
 
     num operator+(const num& p_other) const;
     num operator-(const num& p_other) const;
+    num operator*(const num& p_other) const;
 
     num& operator+=(const num& p_other);
     num& operator-=(const num& p_other);
@@ -48,10 +53,10 @@ public:
     [[nodiscard]] bool operator==(const num& p_other) const;
 
 private:
-    [[nodiscard]] bool in_bounds(const int p_i) const;
-    [[nodiscard]] digit_t& operator[](const size_t p_i);
-    [[nodiscard]] digit_t operator[](const size_t p_i) const;
-    [[nodiscard]] digit_t get_or_0(const size_t p_i, const int p_shift = 0) const;
+    [[nodiscard]] bool      in_bounds(const int p_i) const;
+    [[nodiscard]] digit_t&  operator[](const size_t p_i);
+    [[nodiscard]] digit_t   operator[](const size_t p_i) const;
+    [[nodiscard]] digit_t   get_or_0(const size_t p_i, const int p_shift = 0) const;
 
     void check_separator();
     void trim_left();
@@ -62,6 +67,14 @@ private:
     vec_t<digit_t> data;
     size_t separator{0};
 };
+
+[[nodiscard]] bool          is_positive(const num&);
+[[nodiscard]] bool          is_negative(const num&);
+[[nodiscard]] bool          is_zero(const num&);
+[[nodiscard]] bool          is_fraction(const num&);
+
+[[nodiscard]] num           take_positive(const num&);
+[[nodiscard]] num           take_negative(const num&);
 
 [[nodiscard]] size_t        digit_count(const num&);
 [[nodiscard]] size_t        whole_part_size(const num&);

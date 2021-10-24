@@ -110,6 +110,11 @@ bool is_negative(const num& p_num)
     return !is_zero(p_num) && !p_num.sign;
 }
 
+bool is_fraction(const num& p_num)
+{
+    return p_num.separator != 0;
+}
+
 bool is_zero(const num& p_num)
 {
     return p_num == num("0");
@@ -203,25 +208,25 @@ struct DigitTable
     }
 };
 
-num num::operator+(const num& p_other) const
+static num plus(const num& p_a, const num& p_b)
 {
-    if (is_negative((*this)) && is_positive(p_other))
+    if (is_negative(p_a) && is_positive(p_b))
     {
-        return p_other - take_positive((*this));
+        return p_b - take_positive(p_a);
     }
 
-    if (is_negative((*this)) && is_negative(p_other))
+    if (is_negative(p_a) && is_negative(p_b))
     {
-        return take_negative(take_positive((*this)) + take_positive(p_other));
+        return take_negative(take_positive(p_a) + take_positive(p_b));
     }
 
-    if (is_negative(p_other))
+    if (is_negative(p_b))
     {
-        return (*this) - take_positive(p_other);
+        return p_a - take_positive(p_b);
     }
 
-    const num& a{(*this)};
-    const num& b{p_other};
+    const num& a{p_a};
+    const num& b{p_b};
     const size_t  largest_whole_part_size{std::max(whole_part_size(a), whole_part_size(b))};
     const size_t  largest_fraction_part_size{std::max(fraction_part_size(a), fraction_part_size(b))};
     const size_t  max_size{largest_whole_part_size + largest_fraction_part_size};
@@ -255,6 +260,13 @@ num num::operator+(const num& p_other) const
     }
 
     std::reverse(std::begin(c.data), std::end(c.data));
+
+    return c;
+}
+
+num num::operator+(const num& p_other) const
+{
+    num c = plus((*this), p_other);
 
     c.trim();
     c.check_separator();
@@ -318,6 +330,84 @@ num num::operator-(const num& p_other) const
 
     std::reverse(std::begin(c.data), std::end(c.data));
 
+    c.trim();
+    c.check_separator();
+
+    return c;
+}
+
+static void split_number(std::vector<digit_t>& p_digits, digit_t p_number) 
+{
+    if (p_number == 0) 
+    { 
+        p_digits.push_back(0);
+    } 
+    else 
+    {
+        while (p_number != 0) 
+        {
+            const digit_t last = p_number % 10;
+            p_digits.push_back(last);
+            p_number = (p_number - last) / 10;
+        }
+    }
+}
+
+static num num_times_digit(const num& p_a, const digit_t p_b)
+{
+    const num&   a{p_a};
+    const size_t max_size{digit_count(a)};
+    num c; c.data.reserve(max_size);
+
+    size_t carry{0};
+    for (size_t i = 0; i < max_size; ++i)
+    {
+        const digit_t c_digit{static_cast<digit_t>(p_a[i] * p_b + carry)};
+        digit_t c_final{c_digit};
+
+        if (c_digit > 9)
+        {
+            carry = (c_final - (c_final % 10)) / 10;
+            c_final -= carry * 10;
+        }
+        else
+        {
+            carry = 0;
+        }
+        c.data.push_back(c_final);
+    }
+    if (carry)
+    {
+        split_number(c.data, carry);
+    }
+
+    std::reverse(std::begin(c.data), std::end(c.data));
+
+    return c;
+}
+
+num num::operator*(const num& p_other) const
+{
+    vec_t<num> results; results.reserve(digit_count(p_other));
+    for (size_t i = 0; i < digit_count(p_other); ++i)
+    {
+        num result = num_times_digit((*this), p_other[i]);
+
+        for (size_t j = 0; j < i; ++j)
+        {
+            result.data.push_back(0);
+        }
+
+        results.push_back(result);
+    }
+
+    num c = "0";
+    for (size_t i = 0; i < results.size(); ++i)
+    {
+        c = plus(c, results[i]);
+    }
+
+    c.separator = digit_count(c) - (fraction_part_size((*this)) + fraction_part_size(p_other));
     c.trim();
     c.check_separator();
 

@@ -43,9 +43,9 @@ int main()
 
     // perform_tests<true>();
 
-    num a = "5";
-    num b = "-10";
-    num c = a - b;
+    num a = "0.00012383";
+    num b = "5";
+    num c = a * b;
 
     rl::print(a);
     rl::print(b);
