@@ -70,11 +70,13 @@ void print(const sequence_t& p_sequence)
 int main()
 {
     srand(time(nullptr));
+    
+    // rl::print((25_l).pow(25_l * 25_l));
 
-    // RL_VAR_OUT(rl::to_string(0.123123123_l * 0.9999999_l));
-
-    sequence_t sequence = collatz_conjecture((2_l).pow(68_l) + 25_l);
-    print(sequence);
+    // for (num i = 0_l; i < 100_l; i = i + 1_l)
+    // {
+    //     sequence_t sequence = collatz_conjecture((10_l).pow(75_l) + i * 2_l);
+    // }
 
     // RL_VAR_OUT(rl::is_even(num("89")));
     // RL_VAR_OUT(rl::is_even(num("98")));
@@ -95,13 +97,19 @@ int main()
 
     // perform_tests<true>();
 
-    // num a = "0.00012383";
-    // num b = "5";
+    // num a = 0.00012383_l;
+    // num b = 5_l;
+    // a *= a; a *= a; a *= a;
     // num c = a * b;
 
     // rl::print(a);
     // rl::print(b);
     // rl::print(c);
+
+    num a = 1_l;
+    num b = 0.0125_l;
+    num c = a / b;
+    rl::print(c);
 
     return 0;
 }

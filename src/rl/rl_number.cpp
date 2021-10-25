@@ -122,7 +122,7 @@ bool is_fraction(const num& p_num)
 
 bool is_zero(const num& p_num)
 {
-    return p_num == num("0");
+    return p_num == num(0_l);
 }
 
 num take_positive(const num& p_num)
@@ -141,9 +141,9 @@ num take_negative(const num& p_num)
     return result;
 }
 
-void num::trim_left()
+num& num::trim_left()
 {
-    if (data[0] != 0) return;
+    if (data[0] != 0) return (*this);
 
     size_t last_fraction_size{fraction_part_size((*this))};
     size_t first_non_zero{whole_part_size((*this)) - 1};
@@ -166,11 +166,13 @@ void num::trim_left()
     }
 
     separator = digit_count((*this)) - last_fraction_size;
+
+    return (*this);
 }
 
-void num::trim_right()
+num& num::trim_right()
 {
-    if (data[data.size() - 1] != 0) return;
+    if (data[data.size() - 1] != 0) return (*this);
 
     size_t first_non_zero{0};
 
@@ -191,12 +193,13 @@ void num::trim_right()
     {
         data.erase(std::begin(data) + digit_count((*this)) - fraction_part_size((*this)), std::end(data));
     }
+
+    return (*this);
 }
 
-void num::trim()
+num& num::trim()
 {
-    trim_left();
-    trim_right();
+    return trim_left().trim_right();
 }
 
 struct DigitTable
@@ -406,7 +409,7 @@ num num::operator*(const num& p_other) const
         results.push_back(result);
     }
 
-    num c = "0";
+    num c = 0_l;
     for (size_t i = 0; i < results.size(); ++i)
     {
         c = plus(c, results[i]);
@@ -421,10 +424,107 @@ num num::operator*(const num& p_other) const
     return c;
 }
 
+struct DivisionResult
+{
+    num quotient;
+    num remainder;
+};
+
+static DivisionResult division_with_remainder(const num& p_dividend, const num& p_divisor)
+{
+    DivisionResult result { 0_l, p_dividend };
+
+    while (result.remainder >= p_divisor)
+    {
+        result.remainder -= p_divisor;
+        result.quotient = result.quotient + 1_l;
+    }
+
+    return result;
+}
+
+template <typename T>
+static bool vector_contains(const vec_t<T>& p_vec, const T& p_el)
+{
+    for (size_t i = 0; i < p_vec.size(); i++)
+    {
+        if (p_vec[i] == p_el)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+num num::operator/(const num& p_other) const
+{
+    num dividend = (*this);
+    if (dividend.trim().check_separator() != num(1_l))
+    {
+        return dividend * (1_l / p_other);
+    }
+
+    num a{(*this)};
+    num b{p_other};
+    num c;
+
+    const size_t b_separator{fraction_part_size(b)};
+    b.separator = 0;
+    b.trim_left();
+
+    size_t zeros{0};
+    while (a < b)
+    {
+        a.data.push_back(0);
+        zeros += 1;
+    }
+    if (zeros > 0)
+    {
+        c.separator = 1;
+    }
+
+    for (size_t i = 0; i < zeros; ++i)
+    {
+        c.data.push_back(0);
+    }
+
+    DivisionResult division = division_with_remainder(a, b);
+    division.remainder.separator = 0;
+
+    vec_t<num> remainders;
+    while (division.remainder != 0_l && remainders.size() < 1000)
+    {
+        c.data.push_back(division.quotient.data[0]);
+
+        bool first{true};
+        while (division.remainder < b)
+        {
+            division.remainder.data.push_back(0);
+            if (!first)
+            {
+                c.data.push_back(0);
+            }
+            first = false;
+        }
+        
+        division = division_with_remainder(division.remainder, b);
+        division.remainder.separator = 0;
+        remainders.push_back(division.remainder);
+    }
+    c.data.push_back(division.quotient.data[0]);
+
+    if (b_separator != 0)
+    {
+        c = c * (10_l).pow(std::to_string(b_separator));
+    }
+
+    return c;
+}
+
 num num::pow(const num& p_power) const
 {
     num c = (*this);
-    for (num i = "0"; i < p_power - "1"; i = i + "1")
+    for (num i = 0_l; i < p_power - 1_l; i = i + 1_l)
     {
         c = c * (*this);
     }
@@ -434,7 +534,7 @@ num num::pow(const num& p_power) const
 num num::factorial() const
 {
     num c = (*this);
-    for (num i = (*this) - "1"; i > "0"; i = i - "1")
+    for (num i = (*this) - 1_l; i > 0_l; i = i - 1_l)
     {
         c = c * i;
     }
@@ -443,24 +543,33 @@ num num::factorial() const
 
 num& num::operator+=(const num& p_other)
 {
-    num result = (*this) + p_other;
+    const num result = (*this) + p_other;
     (*this) = result;
     return (*this);
 }
 
 num& num::operator-=(const num& p_other)
 {
-    num result = (*this) - p_other;
+    const num result = (*this) - p_other;
     (*this) = result;
     return (*this);
 }
 
-void num::check_separator()
+num& num::operator*=(const num& p_other)
+{
+    const num result = (*this) * p_other;
+    (*this) = result;
+    return (*this);
+}
+
+num& num::check_separator()
 {
     if (separator == digit_count((*this)))
     {
         separator = 0;
     }
+
+    return (*this);
 }
 
 bool num::operator>(const num& p_other) const
@@ -500,6 +609,16 @@ bool num::operator>(const num& p_other) const
     }
 
     return false;
+}
+
+bool num::operator>=(const num& p_other) const
+{
+    return !(operator<(p_other));
+}
+
+bool num::operator<=(const num& p_other) const
+{
+    return !(operator>(p_other));
 }
 
 bool num::operator<(const num& p_other) const

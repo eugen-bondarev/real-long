@@ -50,12 +50,16 @@ public:
     num operator+(const num& p_other) const;
     num operator-(const num& p_other) const;
     num operator*(const num& p_other) const;
+    num operator/(const num& p_other) const;
 
     num& operator+=(const num& p_other);
     num& operator-=(const num& p_other);
+    num& operator*=(const num& p_other);
 
     [[nodiscard]] bool operator>(const num& p_other) const;
+    [[nodiscard]] bool operator>=(const num& p_other) const;
     [[nodiscard]] bool operator<(const num& p_other) const;
+    [[nodiscard]] bool operator<=(const num& p_other) const;
     [[nodiscard]] bool operator==(const num& p_other) const;
     [[nodiscard]] bool operator!=(const num& p_other) const;
 
@@ -65,10 +69,10 @@ private:
     [[nodiscard]] digit_t   operator[](const size_t p_i) const;
     [[nodiscard]] digit_t   get_or_0(const size_t p_i, const int p_shift = 0) const;
 
-    void check_separator();
-    void trim_left();
-    void trim_right();
-    void trim();
+    num& check_separator();
+    num& trim_left();
+    num& trim_right();
+    num& trim();
 
     bool sign{true};
     vec_t<digit_t> data;
