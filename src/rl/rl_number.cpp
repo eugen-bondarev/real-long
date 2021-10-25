@@ -396,6 +396,11 @@ static num num_times_digit(const num& p_a, const digit_t p_b)
 
 num num::operator*(const num& p_other) const
 {
+    if (is_zero((*this)) || is_zero(p_other))
+    {
+        return 0_l;
+    }
+
     vec_t<num> results; results.reserve(digit_count(p_other));
     for (size_t i = 0; i < digit_count(p_other); ++i)
     {
@@ -458,73 +463,90 @@ static bool vector_contains(const vec_t<T>& p_vec, const T& p_el)
 
 num num::operator/(const num& p_other) const
 {
-    num dividend = (*this);
+    num dividend{take_positive((*this))};
+    num divisor{take_positive(p_other)};
+
+    if (is_zero(divisor))
+    {
+        throw std::runtime_error("Illigal division by 0.");
+    }
+
+    if (is_zero(dividend))
+    {
+        return 0_l;
+    }
+
     if (dividend.trim().check_separator() != num(1_l))
     {
-        return dividend * (1_l / p_other);
+        num quotient = dividend * (1_l / divisor);
+        quotient.sign = !((!sign) ^ (!p_other.sign));
+        return quotient;
     }
 
-    num a{(*this)};
-    num b{p_other};
-    num c;
+    num quotient;
 
-    const size_t b_separator{fraction_part_size(b)};
-    b.separator = 0;
-    b.trim_left();
+    const size_t divisor_fraction_size{fraction_part_size(divisor)};
+    divisor.separator = 0;
+    divisor.trim_left();
 
     size_t zeros{0};
-    while (a < b)
+    while (dividend < divisor)
     {
-        a.data.push_back(0);
+        dividend.data.push_back(0);
         zeros += 1;
     }
+
     if (zeros > 0)
     {
-        c.separator = 1;
+        quotient.separator = 1;
     }
 
     for (size_t i = 0; i < zeros; ++i)
     {
-        c.data.push_back(0);
+        quotient.data.push_back(0);
     }
 
-    DivisionResult division = division_with_remainder(a, b);
+    DivisionResult division = division_with_remainder(dividend, divisor);
     division.remainder.separator = 0;
 
     vec_t<num> remainders;
     while (division.remainder != 0_l && remainders.size() < 1000)
     {
-        c.data.push_back(division.quotient.data[0]);
+        quotient.data.push_back(division.quotient.data[0]);
 
-        bool first{true};
-        while (division.remainder < b)
+        bool first_iteration{true};
+        while (division.remainder < divisor)
         {
             division.remainder.data.push_back(0);
-            if (!first)
+
+            // If we still can't divide.
+            if (!first_iteration)
             {
-                c.data.push_back(0);
+                quotient.data.push_back(0);
             }
-            first = false;
+            first_iteration = false;
         }
         
-        division = division_with_remainder(division.remainder, b);
+        division = division_with_remainder(division.remainder, divisor);
         division.remainder.separator = 0;
         remainders.push_back(division.remainder);
     }
-    c.data.push_back(division.quotient.data[0]);
+    quotient.data.push_back(division.quotient.data[0]);
 
-    if (b_separator != 0)
+    if (divisor_fraction_size != 0)
     {
-        c = c * (10_l).pow(std::to_string(b_separator));
+        quotient *= (10_l).pow(std::to_string(divisor_fraction_size));
     }
 
-    return c;
+    quotient.sign = !((!sign) ^ (!p_other.sign));
+
+    return quotient.trim().check_separator();
 }
 
 num num::pow(const num& p_power) const
 {
     num c = (*this);
-    for (num i = 0_l; i < p_power - 1_l; i = i + 1_l)
+    for (num i = 0_l; i < p_power - 1_l; i++)
     {
         c = c * (*this);
     }
@@ -534,7 +556,7 @@ num num::pow(const num& p_power) const
 num num::factorial() const
 {
     num c = (*this);
-    for (num i = (*this) - 1_l; i > 0_l; i = i - 1_l)
+    for (num i = (*this) - 1_l; i > 0_l; i--)
     {
         c = c * i;
     }
@@ -558,6 +580,20 @@ num& num::operator-=(const num& p_other)
 num& num::operator*=(const num& p_other)
 {
     const num result = (*this) * p_other;
+    (*this) = result;
+    return (*this);
+}
+
+num num::operator++(int)
+{
+    const num result = (*this) + 1_l;
+    (*this) = result;
+    return (*this);
+}
+
+num num::operator--(int)
+{
+    const num result = (*this) - 1_l;
     (*this) = result;
     return (*this);
 }

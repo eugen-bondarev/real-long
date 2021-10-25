@@ -3,6 +3,7 @@
 #ifndef __RL_COMMON_H__
 #define __RL_COMMON_H__
 
+#include <stdexcept>
 #include <iostream>
 #include <string>
 #include <vector>

@@ -36,10 +36,8 @@ friend num           operator"" _rl(const char* p_str);
 friend num           take_positive(const num&);
 friend num           take_negative(const num&);
 
-private:
-    num() = default;
-
 public:
+    num() = default;
     num(const str_t& p_num);
     num(const char* p_c_str);
     num(const vec_t<digit_t>& p_data, const size_t p_separator = 0, const bool p_sign = true);
@@ -55,6 +53,9 @@ public:
     num& operator+=(const num& p_other);
     num& operator-=(const num& p_other);
     num& operator*=(const num& p_other);
+
+    num operator++(int);
+    num operator--(int);
 
     [[nodiscard]] bool operator>(const num& p_other) const;
     [[nodiscard]] bool operator>=(const num& p_other) const;
