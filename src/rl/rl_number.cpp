@@ -147,7 +147,7 @@ num& num::trim_left()
 
     size_t last_fraction_size{fraction_part_size((*this))};
     size_t first_non_zero{whole_part_size((*this)) - 1};
-    for (size_t i = 0; i < whole_part_size((*this)); i++)
+    for (size_t i = 0; i < whole_part_size((*this)); ++i)
     {
         if (data[i] != 0)
         {
@@ -209,10 +209,9 @@ struct DigitTable
 
     DigitTable(const num& p_a, const num& p_b, const size_t p_i)
     {
-        const int a_shift{static_cast<int>(fraction_part_size(p_a) - fraction_part_size(p_b))};
-        const int b_shift{static_cast<int>(fraction_part_size(p_b) - fraction_part_size(p_a))};
-        a = p_a.get_or_0(p_i, a_shift < 0 ? a_shift : 0);
-        b = p_b.get_or_0(p_i, b_shift < 0 ? b_shift : 0);
+        const int shift{static_cast<int>(fraction_part_size(p_a) - fraction_part_size(p_b))};
+        a = p_a.get_or_0(p_i, shift < 0 ?  shift : 0);
+        b = p_b.get_or_0(p_i, shift > 0 ? -shift : 0);
     }
 };
 
@@ -239,7 +238,7 @@ static num plus(const num& p_a, const num& p_b)
     const size_t  largest_fraction_part_size{std::max(fraction_part_size(a), fraction_part_size(b))};
     const size_t  max_size{largest_whole_part_size + largest_fraction_part_size};
 
-    num c; c.data.reserve(max_size);
+    num c; c.data.resize(max_size);
 
     size_t carry{0};
     for (size_t i = 0; i < max_size; ++i)
@@ -257,17 +256,16 @@ static num plus(const num& p_a, const num& p_b)
         {
             carry = 0;
         }
-        c.data.push_back(c_final);
+
+        c.data[max_size - 1 - i] = c_final;
     }
 
-    if (carry) c.data.push_back(1);
+    if (carry) c.data.emplace(std::begin(c.data), 1);
 
     if (largest_fraction_part_size)
     {
         c.separator = largest_whole_part_size + carry;
     }
-
-    std::reverse(std::begin(c.data), std::end(c.data));
 
     return c;
 }
@@ -299,10 +297,10 @@ num num::operator-(const num& p_other) const
 
     const num& a{greater};
     const num& b{less};
-    const bool    this_is_less{this == &b};
-    const size_t  largest_whole_part_size{std::max(whole_part_size(a), whole_part_size(b))};
-    const size_t  largest_fraction_part_size{std::max(fraction_part_size(a), fraction_part_size(b))};
-    const size_t  max_size{largest_whole_part_size + largest_fraction_part_size};
+    const bool this_is_less{this == &b};
+    const size_t largest_whole_part_size{std::max(whole_part_size(a), whole_part_size(b))};
+    const size_t largest_fraction_part_size{std::max(fraction_part_size(a), fraction_part_size(b))};
+    const size_t max_size{largest_whole_part_size + largest_fraction_part_size};
 
     num c; c.data.reserve(max_size);
 
@@ -628,23 +626,17 @@ bool num::operator>(const num& p_other) const
 
     const num& a{(*this)};
     const num& b{p_other};
-
-    const size_t  largest_whole_part_size{std::max(whole_part_size(a), whole_part_size(b))};
-    const size_t  largest_fraction_part_size{std::max(fraction_part_size(a), fraction_part_size(b))};
-    const size_t  max_size{largest_whole_part_size + largest_fraction_part_size};
+    const size_t max_size{std::max(digit_count(a), digit_count(b))};
     
     for (size_t i = max_size; i-->0;)
     {
-        const int a_shift{static_cast<int>(fraction_part_size(a) - fraction_part_size(b))};
-        const int b_shift{static_cast<int>(fraction_part_size(b) - fraction_part_size(a))};
-        const digit_t a_digit{a.get_or_0(i, a_shift < 0 ? a_shift : 0)};
-        const digit_t b_digit{b.get_or_0(i, b_shift < 0 ? b_shift : 0)};
+        const DigitTable digit(a, b, i);
 
-        if (a_digit > b_digit)
+        if (digit.a > digit.b)
         {
             return true;
         }
-        if (a_digit < b_digit)
+        if (digit.a < digit.b)
         {
             return false;
         }
@@ -677,23 +669,17 @@ bool num::operator<(const num& p_other) const
 
     const num& a{(*this)};
     const num& b{p_other};
-
-    const size_t  largest_whole_part_size{std::max(whole_part_size(a), whole_part_size(b))};
-    const size_t  largest_fraction_part_size{std::max(fraction_part_size(a), fraction_part_size(b))};
-    const size_t  max_size{largest_whole_part_size + largest_fraction_part_size};
+    const size_t max_size{std::max(digit_count(a), digit_count(b))};
     
     for (size_t i = max_size; i-->0;)
     {
-        const int a_shift{static_cast<int>(fraction_part_size(a) - fraction_part_size(b))};
-        const int b_shift{static_cast<int>(fraction_part_size(b) - fraction_part_size(a))};
-        const digit_t a_digit{a.get_or_0(i, a_shift < 0 ? a_shift : 0)};
-        const digit_t b_digit{b.get_or_0(i, b_shift < 0 ? b_shift : 0)};
+        const DigitTable digit(a, b, i);
 
-        if (a_digit > b_digit)
+        if (digit.a > digit.b)
         {
             return false;
         }
-        if (a_digit < b_digit)
+        if (digit.a < digit.b)
         {
             return true;
         }
@@ -722,7 +708,7 @@ bool num::operator==(const num& p_other) const
         return false;
     }
 
-    for (size_t i = 0; i < digit_count(a); i++)
+    for (size_t i = 0; i < digit_count(a); ++i)
     {
         if (a.data[i] != b.data[i])
         {

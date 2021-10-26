@@ -1,3 +1,4 @@
+#include "rl/rl_metrics.h"
 #include "rl/rl_number.h"
 #include "rl/rl_common.h"
 
@@ -104,9 +105,15 @@ int main()
 
         // perform_tests<true>();
 
+
         rl::set_division_precision(100);
-        num e = get_e(500_l);
+        
+        rl::Timer timer;
+            num e = get_e(500_l);
+        RL_VAR_OUT(timer.get_delta());
+
         rl::print(e);
+
         
         // rl::print((25_l).pow(25_l * 25_l));
 

@@ -25,6 +25,7 @@ using fundamental_t = float;
 
 size_t get_division_precision();
 void set_division_precision(const size_t p_precision);
+void set_default_division_precision();
 
 #define RL_DEFAULT_DIVISION_PRECISION   1000
 
