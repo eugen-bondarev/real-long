@@ -510,7 +510,7 @@ num num::operator/(const num& p_other) const
     division.remainder.separator = 0;
 
     vec_t<num> remainders;
-    while (division.remainder != 0_l && remainders.size() < 1000)
+    while (division.remainder != 0_l && remainders.size() < get_division_precision())
     {
         quotient.data.push_back(division.quotient.data[0]);
 
@@ -556,6 +556,12 @@ num num::pow(const num& p_power) const
 num num::factorial() const
 {
     num c = (*this);
+
+    if (is_zero(c))
+    {
+        return 1_l;
+    }
+
     for (num i = (*this) - 1_l; i > 0_l; i--)
     {
         c = c * i;

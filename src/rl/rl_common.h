@@ -23,6 +23,11 @@ using fundamental_t = float;
 #define RL_VAR_OUT(x) std::cout << #x << " = " << x << std::endl
 #define RL_LINE_OUT(x) std::cout << x << std::endl
 
+size_t get_division_precision();
+void set_division_precision(const size_t p_precision);
+
+#define RL_DEFAULT_DIVISION_PRECISION   1000
+
 }
 
 #endif

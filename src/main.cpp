@@ -73,15 +73,24 @@ num get_pi(const num& p_precision)
     num pi{0_l};
     for (num k = 0_l; k < p_precision; k++)
     {
-        num numerator = num("-1").pow(k);
+        num numerator = rl::take_negative(1_l).pow(k);
         num denominator = k * 2_l + 1_l;
 
         pi += numerator / denominator;
-
-        // RL_LINE_OUT("Here");
     }
 
     return pi * 4_l;
+}
+
+num get_e(const num& p_precision)
+{
+    num e{0_l};
+    for (num k = 0_l; k < p_precision; k++)
+    {
+        e += 1_l / k.factorial();
+    }
+
+    return e;
 }
 
 int main()
@@ -90,10 +99,14 @@ int main()
 
     try
     {
+        // num a = 1_l / 6_l;
+        // rl::print(a);
+
         // perform_tests<true>();
 
-        // num pi = get_pi(1000_l);
-        // rl::print(pi);
+        rl::set_division_precision(100);
+        num e = get_e(500_l);
+        rl::print(e);
         
         // rl::print((25_l).pow(25_l * 25_l));
 
@@ -127,10 +140,17 @@ int main()
         // rl::print(b);
         // rl::print(c);
 
-        num a = "25";
-        num b = "-5";
-        num c = a / b;
-        rl::print(c);
+        // num a = "25";
+        // num b = "-4.35";
+
+        // rl::set_division_precision(25);
+        // num c = a / b;
+
+        // rl::set_division_precision(5000);
+        // num d = a / b;
+
+        // rl::print(c);
+        // rl::print(d);
 
     } catch (const std::exception& p_e)
     {
