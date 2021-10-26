@@ -54,6 +54,8 @@ public:
     num& operator-=(const num& p_other);
     num& operator*=(const num& p_other);
 
+    num& operator++();
+    num& operator--();
     num operator++(int);
     num operator--(int);
 

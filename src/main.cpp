@@ -86,7 +86,7 @@ num get_pi(const num& p_precision)
 num get_e(const num& p_precision)
 {
     num e{0_l};
-    for (num k = 0_l; k < p_precision; k++)
+    for (num k = 0_l; k < p_precision; ++k)
     {
         e += 1_l / k.factorial();
     }
@@ -103,17 +103,15 @@ int main()
         // num a = 1_l / 6_l;
         // rl::print(a);
 
-        // perform_tests<true>();
+        perform_tests<true>();
 
-
-        rl::set_division_precision(100);
+        // rl::set_division_precision(100);
         
-        rl::Timer timer;
-            num e = get_e(500_l);
-        RL_VAR_OUT(timer.get_delta());
+        // rl::Timer timer;
+        //     num e = get_e(500_l);
+        // RL_VAR_OUT(timer.get_delta());
 
-        rl::print(e);
-
+        // rl::print(e);
         
         // rl::print((25_l).pow(25_l * 25_l));
 

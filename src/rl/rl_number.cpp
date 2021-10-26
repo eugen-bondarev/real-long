@@ -292,6 +292,9 @@ num num::operator-(const num& p_other) const
         return (*this) + take_positive(p_other);
     }
 
+    // -------------------------------------------------------------------------------
+    // Special cases.
+    // -------------------------------------------------------------------------------
     const num& greater{(*this) > p_other ? (*this) : p_other};
     const num& less{(*this) < p_other ? (*this) : p_other};
 
@@ -544,7 +547,7 @@ num num::operator/(const num& p_other) const
 num num::pow(const num& p_power) const
 {
     num c = (*this);
-    for (num i = 0_l; i < p_power - 1_l; i++)
+    for (num i = 0_l; i < p_power - num("1"); ++i)
     {
         c = c * (*this);
     }
@@ -560,7 +563,7 @@ num num::factorial() const
         return 1_l;
     }
 
-    for (num i = (*this) - 1_l; i > 0_l; i--)
+    for (num i = (*this) - num("1"); i > 0_l; --i)
     {
         c = c * i;
     }
@@ -585,6 +588,18 @@ num& num::operator*=(const num& p_other)
 {
     const num result = (*this) * p_other;
     (*this) = result;
+    return (*this);
+}
+
+num& num::operator++()
+{
+    (*this) += 1_l;
+    return (*this);
+}
+
+num& num::operator--()
+{
+    (*this) -= 1_l;
     return (*this);
 }
 
