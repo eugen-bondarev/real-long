@@ -4,4 +4,14 @@ project(real-long VERSION 1.0.0)
 
 file(GLOB_RECURSE src src/*.cpp)
 
-add_executable(${PROJECT_NAME} ${src})
+add_library(${PROJECT_NAME} STATIC ${src})
+
+target_include_directories(
+    ${PROJECT_NAME}
+        PRIVATE
+            src/rl
+        INTERFACE
+            src
+)
+
+add_subdirectory(test)

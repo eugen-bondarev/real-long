@@ -2,6 +2,9 @@
 #include "rl/rl_number.h"
 #include "rl/rl_common.h"
 
+#include <fstream>
+#include <array>
+
 using rl::num;
 
 float gen_rand(float p_from, float p_to)
@@ -42,7 +45,7 @@ using sequence_t = rl::vec_t<num>;
 
 sequence_t collatz_conjecture(num p_start)
 {
-    sequence_t result{p_start};
+    sequence_t result{};
 
     while (p_start != 1_l)
     {
@@ -57,6 +60,19 @@ sequence_t collatz_conjecture(num p_start)
         result.push_back(p_start);
     }
 
+    return result;
+}
+
+sequence_t fibonacci(const std::array<num, 2>& p_start, const num& end) 
+{
+    sequence_t result = { p_start[0], p_start[1] };
+    num current = result[0] + result[1];
+    result.push_back(current);
+    while (current < end) 
+    {
+        current = result[result.size() - 1] + result[result.size() - 2];
+        result.push_back(current);
+    }
     return result;
 }
 
@@ -100,22 +116,70 @@ int main()
 
     try
     {
+        // RL_LINE_OUT(rl::to_string(
+        //     (50_l).pow(99_l)
+        // ));
+
+        // RL_LINE_OUT("\n");
+
+        // RL_LINE_OUT(rl::to_string( 
+        //     (99_l).factorial()
+        // ));
+
+        const sequence_t fibonacci_sequence = fibonacci({ 1_l, 1_l }, 100000000000000000000000000000000000000000000000000000000000_l);
+        print(fibonacci_sequence);
+
+        // num fib = fibonacci(3340368);
+        // rl::print(fib);
+        // return 0;
+
         // num a = 1_l / 6_l;
         // rl::print(a);
 
-        perform_tests<true>();
+        // perform_tests<true>();
 
         // rl::set_division_precision(100);
         
         // rl::Timer timer;
-        //     num e = get_e(500_l);
+        //     num e = get_e(1000_l);
         // RL_VAR_OUT(timer.get_delta());
-
         // rl::print(e);
-        
+
         // rl::print((25_l).pow(25_l * 25_l));
 
-        // sequence_t sequence = collatz_conjecture(9780657630_l * 4_l + 1_l);
+        // struct Data
+        // {
+        //     num start;
+        //     size_t size;
+        // };
+
+        // rl::vec_t<Data> recording; recording.reserve(5000);
+
+        // for (size_t i = 1; i < fib.size(); ++i)
+        // {
+        //     const num start{fib[i]};
+        //     const size_t size = collatz_conjecture(start).size();
+        //     recording.push_back({ start, size });
+        // }
+
+        // std::ofstream file("C:/Users/azare/Documents/Dev/Cpp/real-long/recording");
+
+        // if (!file.is_open())
+        // {
+        //     return 0;
+        // }
+
+        // for (size_t i = 0; i < recording.size(); i++)
+        // {
+        //     file << rl::to_string(recording[i].start) << ",";
+        //     file << recording[i].size << '\n';
+        // }
+
+        // file.close();
+
+        // const num start{(25_l).factorial() + 1_l};
+        // rl::print(start);
+        // const sequence_t sequence = collatz_conjecture(start);
         // print(sequence);
         // RL_VAR_OUT(sequence.size());
 
