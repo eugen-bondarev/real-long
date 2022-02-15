@@ -23,8 +23,8 @@ void perform_tests()
 
         if (p_logging)
         {
-            RL_LINE_OUT(af << " / " << bf << " = " << cf);
-            RL_LINE_OUT(rl::to_string(a) << " / " << rl::to_string(b) << " = " << rl::to_string(c));
+            RL_LINE_OUT("C++ output: " << af << " / " << bf << " = " << cf);
+            RL_LINE_OUT("rl output: " << rl::to_string(a) << " / " << rl::to_string(b) << " = " << rl::to_string(c));
             if (!isnan(error))
             {
                 RL_LINE_OUT("Error: " << (std::abs(rl::to_fundamental(c)) - std::abs(cf)));
@@ -115,17 +115,17 @@ int main()
 {
     perform_tests<true>();
     
-    RL_LINE_OUT('\n');
+    // RL_LINE_OUT('\n');
 
-    RL_LINE_OUT("55^99 = " << rl::to_string(
-        (50_l).pow(99_l)
-    ));
+    // RL_LINE_OUT("55^99 = " << rl::to_string(
+    //     (50_l).pow(99_l)
+    // ));
 
-    RL_LINE_OUT('\n');
+    // RL_LINE_OUT('\n');
     
-    RL_LINE_OUT("99! = " << rl::to_string(
-        (99_l).factorial()
-    ));
+    // RL_LINE_OUT("99! = " << rl::to_string(
+    //     (99_l).factorial()
+    // ));
 
     // RL_LINE_OUT('\n');
 
