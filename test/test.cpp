@@ -115,21 +115,19 @@ int main()
 {
     perform_tests<true>();
     
-    // RL_LINE_OUT('\n');
+    RL_LINE_OUT('\n');
 
-    // RL_LINE_OUT("55^99 = " << rl::to_string(
-    //     (50_l).pow(99_l)
-    // ));
+    RL_LINE_OUT("55^99 = " << rl::to_string(
+        (55_l).pow(99_l)
+    ));
 
-    // RL_LINE_OUT('\n');
+    RL_LINE_OUT('\n');
     
-    // RL_LINE_OUT("99! = " << rl::to_string(
-    //     (99_l).factorial()
-    // ));
+    RL_LINE_OUT("99! = " << rl::to_string(
+        (99_l).factorial()
+    ));
 
-    // RL_LINE_OUT('\n');
-
-    // RL_LINE_OUT(rl::to_string(get_e(25_l)));
+    std::cin.get();
 
     return 0;
 }
